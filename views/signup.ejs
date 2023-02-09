@@ -1,0 +1,57 @@
+<%- include('partials/header'); -%>
+
+<form>
+  <h2>Sign up</h2>
+  <label for="email">Email</label>
+  <input type="text" name="email" required />
+  <div class="email error"></div>
+  <label for="password">Password</label>
+  <input type="password" name="password" required />
+  <div class="password error"></div>
+  <button type="submit">Sign up</button>
+</form>
+
+<script>
+  const form = document.querySelector("form");
+  const emailError = document.querySelector(".email.error"); // we have to take the error from the <div> (it can be anything) in the form
+  const passwordError = document.querySelector(".password.error"); // we have to take the error from the <div>(it can be anything) in the form
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Get the email and password from the form
+    const email = form.email.value;
+    const password = form.password.value;
+
+    // remove any error messages
+    emailError.textContent = "";
+    passwordError.textContent = "";
+
+
+    // Send a POST request to the /signup route JWT
+    try {
+      const res = await fetch("/signup", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      // Get the data from the response and display any errors using JTW
+      // in order to take error we have to take from the <div>(could be anything) in the form
+      const data = await res.json();
+      if (data.errors) {
+        emailError.textContent = data.errors.email;
+        passwordError.textContent = data.errors.password;
+      }
+      if (data.user) {
+        // if there is a user, redirect to the home page
+        location.assign("/");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  });
+</script>
+
+<%- include('partials/footer'); -%>
